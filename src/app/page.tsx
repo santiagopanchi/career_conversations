@@ -3,14 +3,20 @@
 import styles from "./page.module.css";
 import { useState } from "react";
 
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export default function Home() {
   const [scenario, setScenario] = useState("");
   const [output, setOutput] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<ChatMessage[]>([]);
 
   async function handleGenerate() {
-    if (isLoading) return;
+    if (isLoading || !scenario.trim()) return;
 
     // keep prior requirement
     // eslint-disable-next-line no-console
@@ -18,7 +24,6 @@ export default function Home() {
 
     setIsLoading(true);
     setError(null);
-    setOutput(null);
 
     try {
       const response = await fetch("http://localhost:8000/chat", {
@@ -26,7 +31,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({"message":scenario}),
+        body: JSON.stringify({ message: scenario, history }),
       });
 
       if (!response.ok) {
@@ -48,7 +53,15 @@ export default function Home() {
           ? parsed
           : JSON.stringify(parsed, null, 2);
 
+      // Update history with user message and assistant reply
+      setHistory((prev) => [
+        ...prev,
+        { role: "user", content: scenario },
+        { role: "assistant", content: text },
+      ]);
+
       setOutput(text);
+      setScenario("");
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Unknown error";
       setError(message);
