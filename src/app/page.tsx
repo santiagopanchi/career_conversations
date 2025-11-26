@@ -76,7 +76,7 @@ export default function Home() {
         <div className={styles.avatar} aria-label="matrix animation">
           <img src="/matrix.gif" alt="Matrix animation" className={styles.matrixImage} />
         </div>
-        <h2 className={styles.title}>Twin AI Example</h2>
+        <h2 className={styles.title}>Twin AI Example.</h2>
 
         <div className={styles.inputGroup}>
           <textarea
